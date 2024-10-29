@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eenvoudige One Pager met Hamburger Menu</title>
+    <style>
+        /* Basis stijlen */
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            scroll-behavior: smooth;
+            height: 100%;
+        }
+
+        /* Container for scroll snapping */
+        .scroll-container {
+            scroll-snap-type: y mandatory; /* Enable vertical scroll snapping */
+            overflow-y: scroll; /* Enable vertical scrolling */
+            height: 100vh; /* Full viewport height */
+        }
+
+        /* Vast menu balk (desktop versie) */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background-color: #333;
+            color: white;
+            height: 60px; /* Height of the nav same as the image */
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            box-sizing: border-box;
+            z-index: 10;
+        }
+
+        nav a {
+            color: white;
+            margin-left: 30px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+        /* Styling for the logo in the navigation bar */
+        nav .logo {
+            display: flex;
+            align-items: center;
+            margin-right: auto;
+        }
+
+        nav .logo img {
+            height: 50px;
+        }
+
+        /* Hamburger knop (mobiele versie) */
+        .hamburger {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            width: 35px;
+            height: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        .hamburger div {
+            width: 100%;
+            height: 4px;
+            background-color: white;
+            border-radius: 2px;
+            transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease;
+        }
+
+        /* Verborgen menu aan de rechterkant */
+        .menu {
+            position: fixed;
+            top: 0;
+            right: -250px;
+            height: 100%;
+            width: 250px;
+            background-color: #333;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: right 0.3s ease;
+            z-index: 999;
+        }
+
+        .menu a {
+            color: white;
+            text-decoration: none;
+            font-size: 1.5rem;
+            margin: 20px 0;
+        }
+
+        .menu a:hover {
+            text-decoration: underline;
+        }
+
+        /* Actieve klasse voor menu (menu zichtbaar) */
+        .menu.active {
+            right: 0;
+        }
+
+        /* Hamburger to cross animation */
+        .hamburger.active div:nth-child(1) {
+            transform: rotate(45deg) translate(7px, 7px);
+        }
+
+        .hamburger.active div:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active div:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -7px);
+        }
+
+        /* Secties */
+        section {
+            height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            font-size: 1.5rem;
+            scroll-snap-align: start;
+        }
+
+        #section1 {
+            background-image: url("images/Background_home.png");
+            background-size: cover;
+            background-position: center;
+            color: white;
+        }
+
+        #section2 {
+            background-color: white; /* Set background to white only for this section */
+            color: black; /* Text color to black for readability */
+            display: flex;
+            align-items: center; /* Center vertically */
+            padding: 20px; /* Add some padding */
+        }
+
+        #section3 { background-color: #333; color: white; }
+        #section4 { background-color: #264653; color: white; }
+
+        /* Description container */
+        .description {
+            flex: 1; /* Allow it to take available space */
+            max-width: 600px; /* Max width for better readability */
+            margin-right: 20px; /* Space between description and image */
+        }
+
+        /* Afbeelding stijl */
+        .image-container img {
+            width: 300px;
+            height: 300px;
+            display: block;
+            margin: 0 auto;
+        }
+
+        /* Knoppen stijl */
+        .button-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .button-container button {
+            padding: 10px 20px;
+            background-color: #333;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .button-container button:hover {
+            background-color: #555;
+        }
+        /* Mededelingen carousel hover text */
+    .carousel-item {
+        position: relative;
+    }
+
+    .hover-text {
+        position: absolute;
+        bottom: 10px;
+        left: 0;
+        width: 100%;
+        color: white;
+        background-color: rgba(0, 0, 0, 0.6);
+        padding: 10px;
+        font-size: 1rem;
+        text-align: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .carousel-item:hover .hover-text {
+        opacity: 1;
+    }
+        /* Fixed size for carousel images */
+    .carousel-item img {
+        width: 800px; /* Set a fixed width */
+        height: 400px; /* Set a fixed height */
+        object-fit: cover; /* Ensures images fill the area without distortion */
+    }
+    </style>
+</head>
+<body>
+
+    <!-- Hamburger knop -->
+    <div class="hamburger" id="hamburger">
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
+
+    <!-- Uitklapbaar menu -->
+    <nav class="menu" id="menu">
+        <a href="#section1">Home</a>
+        <a href="#section2">Over ons</a>
+        <a href="#section3">Mededelingen</a>
+        <a href="#section4">Spellen</a>
+    </nav>
+
+    <!-- Navigatiebalk met afbeelding als link -->
+    <nav>
+        <a href="#section1" class="logo">
+            <img src="images/LogoBordspellen.png" alt="Logo Bordspellenclub">
+        </a>
+    </nav>
+
+    <!-- Scrollable container for sections -->
+    <div class="scroll-container">
+        <!-- Secties -->
+        <section id="section1">
+            <div class="image-container">
+                <img src="images/LogoBordspellen.png" alt="Voorbeeld afbeelding">
+            </div>
+            <p>Hello World</p>
+            <div class="button-container">
+                <button>Over ons</button>
+                <button>Inschrijven</button>
+            </div>
+        </section>
+
+        <section id="section2" style="background-color: white; color: black; display: flex; flex-direction: row; justify-content: space-around; align-items: center; padding: 20px;">
+            <!-- Text Section with Buttons Inside -->
+            <div style="width: 35%; background-color: #d52727; padding: 20px; color: white; border-radius: 10px; transform: translateX(-10%); font-size: 0.83em; position: relative;">
+                <h2>Over ons:</h2>
+                <p>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean aliquam eget erat et posuere. Nunc malesuada, dolor non eleifend cursus, augue sapien feugiat lectus, eu sollicitudin tortor ipsum ac urna. Sed bibendum fringilla augue, et volutpat nulla congue non.
+                </p>
+                <p>
+                    Suspendisse convallis nisi enim, vel dignissim leo blandit a. Donec et lacus risus. In dapibus dictum neque, eu malesuada eros dapibus dignissim. Duis ornare felis at ullamcorper dapibus.
+                </p>
+        
+                <!-- Buttons placed directly below the text -->
+                <div style="display: flex; gap: 10px; margin-top: 20px; justify-content: center;">
+                    <button style="padding: 10px 20px; background-color: #333; color: white; border: none; cursor: pointer; border-radius: 5px;">Inschrijven</button>
+                    <button style="padding: 10px 20px; background-color: #333; color: white; border: none; cursor: pointer; border-radius: 5px;">Contact</button>
+                </div>
+            </div>
+            
+            <!-- Location and Image Section (Stacked) -->
+            <div style="display: flex; flex-direction: column; align-items: center;">
+                <!-- Location Section -->
+                <div style="width: 200px; height: 100px; background-color: #ddd; display: flex; justify-content: center; align-items: center; border-radius: 8px; margin-bottom: 20px;">
+                    <span style="font-size: 24px;">📍</span>
+                </div>
+                <p>Eindhoven, Eindhovenseweg 65</p>
+                
+                <!-- Image Carousel Section -->
+                <div style="width: 400px; position: relative; overflow: hidden; border-radius: 8px; padding-top: 10px;">
+                    <div class="carousel-images" style="display: flex; transition: transform 0.5s ease;">
+                        <img src="images/friends_Playing.jpg" alt="Friends Playing" style="width: 400px; height: auto;">
+                        <img src="images/Playing_Boardgame.jpg" alt="Playing a boardgame" style="width: 400px; height: auto;">
+                        <img src="images/Oldjes schaken.jpg" alt="Seniors playing chess" style="width: 400px; height: auto;">
+                    </div>
+                    <!-- Carousel Controls -->
+                    <button onclick="prevSlide()" style="position: absolute; top: 50%; left: 10px; transform: translateY(-50%); background-color: rgba(0,0,0,0.5); color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer;">&#10094;</button>
+                    <button onclick="nextSlide()" style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%); background-color: rgba(0,0,0,0.5); color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer;">&#10095;</button>
+                </div>
+            </div>
+        </section>
+        
+
+        <section id="section3" style="background-color: #333; color: white; display: flex; height: 100vh; flex-direction: row;">
+            <!-- Container for the heading and carousel to align them to the left -->
+            <div style="flex: 2; padding: 20px; display: flex; flex-direction: column;">
+                <h2 style="font-size: 2rem;">Mededelingen:</h2>
+        
+                <!-- Mededelingen Carousel -->
+                <div style="width: 800px; position: relative; overflow: hidden; border-radius: 8px; padding-top: 10px; margin: 20px 0;">
+                    <div class="mededelingen-carousel-images" style="display: flex; transition: transform 0.5s ease;">
+                        <div class="carousel-item" style="position: relative;">
+                            <img src="images/Dndstockfoto.jpg" alt="Foto dnd dobbelstenen">
+                            <div class="hover-text">
+                                DnD dobbelstenen: 
+                                Nu extra dobbelstenen te koop! Rood wit en blauw dat vorige keren op waren zijn weer terug op vooraad.
+                            </div>
+                        </div>
+                        <div class="carousel-item" style="position: relative;">
+                            <img src="images/StockConsolefoto.jpg" alt="Foto Icons consoles">
+                            <div class="hover-text">Consoles icons</div>
+                        </div>
+                        <div class="carousel-item" style="position: relative;">
+                            <img src="images/BordspellenRackFoto.jpeg" alt="Foto bordspellen rack">
+                            <div class="hover-text">Bordspellen rack</div>
+                        </div>
+                    </div>
+                    <!-- Carousel Controls -->
+                    <button onclick="prevMededelingSlide()" style="position: absolute; top: 50%; left: 10px; transform: translateY(-50%); background-color: rgba(0,0,0,0.5); color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer;">&#10094;</button>
+                    <button onclick="nextMededelingSlide()" style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%); background-color: rgba(0,0,0,0.5); color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer;">&#10095;</button>
+                </div>
+            </div>
+        
+            <!-- Right Column for Events -->
+            <div style="flex: 1; display: flex; justify-content: center; align-items: center; flex-direction: column;">
+                <p style="font-size: 1.5rem; text-align: center;">Events:</p>
+                <div style="display: flex; flex-direction: column; align-items: center;">
+                    <button style="width: 300px; height: 75px; background-color: red; color: white; border: none; margin: 15px 0;">Dnd Oneshot Avond (Hier inschrijven)</button>
+                    <button style="width: 300px; height: 75px; background-color: red; color: white; border: none; margin: 15px 0;">Schaak toernooi 22 november</button>
+                    <button style="width: 300px; height: 75px; background-color: red; color: white;border: none; margin: 15px 0;">Card Trade Market 8, 10 & 11 december</button>
+                    <button style="width: 300px; height: 75px; background-color: red; color: white;border: none; margin: 15px 0;">Senioren Avonden</button>
+                    <button style="width: 300px; height: 75px; background-color: red; color: white;border: none; margin: 15px 0;">Cursussen</button>
+                </div>
+            </div>
+        </section>
+        
+        
+        <section id="section4">Welkom op Pagina 4</section>
+    </div>
+
+    <script>
+        // Selecteer de hamburger en het menu
+        const hamburger = document.getElementById('hamburger');
+        const menu = document.getElementById('menu');
+
+        // Voeg een click-event toe aan de hamburger knop
+        hamburger.addEventListener('click', function() {
+            // Toggle de actieve klassen voor zowel de hamburger als het menu
+            hamburger.classList.toggle('active');
+            menu.classList.toggle('active');
+        });
+
+        let currentIndex = 0;
+
+    function showSlide(index) {
+        const carousel = document.querySelector('.carousel-images');
+        const slides = document.querySelectorAll('.carousel-images img');
+        if (index >= slides.length) currentIndex = 0;
+        if (index < 0) currentIndex = slides.length - 1;
+        carousel.style.transform = 'translateX(' + (-400 * currentIndex) + 'px)';
+    }
+
+    function nextSlide() {
+        currentIndex++;
+        showSlide(currentIndex);
+    }
+
+    function prevSlide() {
+        currentIndex--;
+        showSlide(currentIndex);
+    }
+
+    let currentMededelingIndex = 0;
+
+        function showMededelingSlide(index) {
+            const mededelingenCarousel = document.querySelector('.mededelingen-carousel-images');
+            const mededelingenSlides = document.querySelectorAll('.mededelingen-carousel-images img');
+            if (index >= mededelingenSlides.length) currentMededelingIndex = 0;
+            if (index < 0) currentMededelingIndex = mededelingenSlides.length - 1;
+            mededelingenCarousel.style.transform = 'translateX(' + (-800 * currentMededelingIndex) + 'px)';
+        }
+
+        function nextMededelingSlide() {
+            currentMededelingIndex++;
+            showMededelingSlide(currentMededelingIndex);
+        }
+
+        function prevMededelingSlide() {
+            currentMededelingIndex--;
+            showMededelingSlide(currentMededelingIndex);
+        }
+    </script>
+
+</body>
+</html>
